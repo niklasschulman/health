@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Hälsocoach</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {font-family:-apple-system;margin:0;background:#eef1f6;}
+header {background:#0b3d91;color:white;padding:16px;font-size:20px;}
+.tabs {display:flex;background:white;}
+.tab {flex:1;padding:12px;text-align:center;cursor:pointer;}
+.active {background:#1976d2;color:white;}
+.container {padding:16px;}
+.card {
+  background:white;border-radius:14px;padding:16px;margin-bottom:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+button {
+  width:100%;padding:10px;margin-top:8px;border:none;
+  border-radius:8px;background:#1976d2;color:white;
+}
+input {width:100%;padding:8px;margin-top:6px;}
+.day {padding:10px;border-radius:10px;color:white;margin:4px 0;}
+.strength{background:#1976d2;}
+.fast{background:#2e7d32;}
+.cardio{background:#ef6c00;}
+.rest{background:#757575;}
+.alert {background:#fff3cd;padding:10px;border-radius:8px;margin-top:10px;}
+.good {background:#d4edda;}
+</style>
+</head>
+
+<body>
+
+<header>AI Hälsocoach</header>
+
+<div class="tabs">
+<div class="tab active" onclick="show('home')">Hem</div>
+<div class="tab" onclick="show('train')">Träning</div>
+<div class="tab" onclick="show('weight')">Vikt</div>
+<div class="tab" onclick="show('plan')">Plan</div>
+</div>
+
+<div class="container" id="app"></div>
+
+<script>
+
+let tab="home";
+
+let week=JSON.parse(localStorage.getItem("week"))||[
+{type:"strength",label:"Pass A"},
+{type:"cardio",label:"Cykel"},
+{type:"fast",label:"Fasta"},
+{type:"strength",label:"Pass B"},
+{type:"rest",label:"Vila"},
+{type:"rest",label:"Aktiv"},
+{type:"rest",label:"Flex"}
+];
+
+let weights=JSON.parse(localStorage.getItem("weights"))||[];
+let logs=JSON.parse(localStorage.getItem("logs"))||{};
+let history=JSON.parse(localStorage.getItem("history"))||[];
+
+function save(){
+localStorage.setItem("week",JSON.stringify(week));
+localStorage.setItem("weights",JSON.stringify(weights));
+localStorage.setItem("logs",JSON.stringify(logs));
+localStorage.setItem("history",JSON.stringify(history));
+}
+
+function show(t){
+tab=t;
+document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+event.target.classList.add("active");
+render();
+}
+
+function render(){
+
+let app=document.getElementById("app");
+
+if(tab==="home"){
+
+let today=week[0];
+let coach=aiCoach();
+
+app.innerHTML=`
+<div class="card">
+<h3>Idag: ${today.label}</h3>
+<button onclick="done()">Markera klar</button>
+<div class="alert">${coach}</div>
+</div>`;
+}
+
+if(tab==="train"){
+app.innerHTML=`
+<div class="card">
+<h3>Träning</h3>
+${renderWorkout()}
+</div>`;
+}
+
+if(tab==="weight"){
+app.innerHTML=`
+<div class="card">
+<h3>Vikt</h3>
+<input id="w" placeholder="kg">
+<button onclick="addWeight()">Spara</button>
+<canvas id="chart"></canvas>
+</div>`;
+renderChart();
+}
+
+if(tab==="plan"){
+app.innerHTML=`<div class="card">${week.map(d=>`
+<div class="day ${d.type}">${d.label}</div>`).join("")}</div>`;
+}
+
+save();
+}
+
+function aiCoach(){
+
+let msg="";
+
+let today=week[0];
+
+if(today.type==="fast"){
+msg+="Fasta idag – håll det lugnt. ";
+}
+
+if(today.type==="strength"){
+msg+="Bra dag att bygga muskler 💪 ";
+}
+
+if(weights.length>6){
+let trend=weights[weights.length-1]-weights[weights.length-7];
+
+if(trend<-0.7){
+msg+="⚠️ Du tappar vikt – risk för muskelförlust. Öka protein.";
+}
+else if(trend>0.7){
+msg+="⚠️ Vikt upp – justera kaloriintag.";
+}
+else{
+msg+="✔️ Stabil vikt – perfekt.";
+}
+}
+
+let recentStrength=history.slice(-5).filter(x=>x==="strength").length;
+
+if(recentStrength<2){
+msg+=" Du tränar lite – prioritera styrka.";
+}
+
+return msg;
+}
+
+function renderWorkout(){
+if(week[0].type!=="strength") return "Ingen styrka idag";
+
+let ex=["Squat","Armhävningar","Rodd","Bridge","Planka"];
+
+return ex.map(e=>`
+<b>${e}</b>
+<input value="${logs[e]||''}" 
+onchange="logs['${e}']=this.value; save()">
+`).join("<br>");
+}
+
+function done(){
+history.push(week[0].type);
+week.push(week.shift());
+adjust();
+render();
+}
+
+function adjust(){
+
+// undvik två styrkepass i rad
+for(let i=0;i<week.length-1;i++){
+if(week[i].type==="strength" && week[i+1].type==="strength"){
+week.splice(i+1,0,{type:"rest",label:"Vila"});
+week.pop();
+}
+}
+
+// om du tränat lite → prioritera styrka
+let recent=history.slice(-5).filter(x=>x==="strength").length;
+if(recent<1){
+week[1]={type:"strength",label:"Pass A"};
+}
+
+}
+
+function addWeight(){
+let v=parseFloat(document.getElementById("w").value);
+if(!v)return;
+weights.push(v);
+render();
+}
+
+let chart;
+
+function renderChart(){
+let ctx=document.getElementById("chart");
+if(!ctx)return;
+
+if(chart) chart.destroy();
+
+chart=new Chart(ctx,{
+type:"line",
+data:{
+labels:weights.map((_,i)=>i+1),
+datasets:[{data:weights,tension:0.3}]
+},
+options:{plugins:{legend:{display:false}}}
+});
+}
+
+render();
+
+</script>
+
+</body>
+</html>
