@@ -18,26 +18,27 @@ export default async function handler(req, res) {
     const { weight = 65, weights = [], history = [] } = req.body || {};
 
     // 🧠 Prompt (kan förbättras senare)
-    const prompt = `
+const prompt = `
 Du är en personlig hälsocoach.
 
 Person:
 - 51 år
-- Vikt: ${weight} kg
-- Vikttrend: ${weights.join(", ")}
-- Träning: ${history.join(", ")}
+- tidigare hjärtinfarkt
+- vill minimera styrketräning
+- mål: maximal effekt med minimal insats
+- tränar helst 2 korta pass/vecka (~30 min)
 
-Mål:
-- Behålla vikt
-- Bygga muskler
-- Minimera hjärtrisk
+Regler:
+- föreslå ALDRIG långa pass
+- håll styrketräning minimal
+- prioritera effektivitet
 
 Ge:
-1. Vad personen ska göra idag
-2. Exakt vad han ska äta (konkret måltid)
-3. En förbättring
+1. Vad personen ska göra idag (kort)
+2. Ev. liten justering
+3. Ev. andra tips för förbättrat mående
 
-Kort, konkret, tydligt.
+Kort, konkret, realistiskt.
 `;
 
     // 🤖 OpenAI-anrop
