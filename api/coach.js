@@ -19,7 +19,23 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
-        input: "Ge ett kort hälsoråd för en 51-åring som vill träna minimalt"
+        input: 
+          "Du är en personlig hälsocoach.
+Person:
+- 51 år
+- tidigare hjärtinfarkt
+- vill träna så lite som möjligt
+- mål: maximal effekt med minimal insats
+- accepterar ca 2 korta pass/vecka (20–30 min)
+
+Ge:
+1. Vad han ska göra idag (kort)
+2. Exakt vad han ska äta
+3. En liten optimering
+
+Aldrig långa pass. Aldrig överdriven träning."
+
+        
       })
     });
 
