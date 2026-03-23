@@ -23,23 +23,29 @@ export default async function handler(req) {
 
     const body = await req.json();
 
-    const prompt = `
+const prompt = `
 Du är en personlig hälsocoach.
 
 Person:
 - 51 år
 - tidigare hjärtinfarkt
 - vill minimera träning
-- mål: maximal effekt, minimal insats
+- mål: maximal effekt med minimal insats
+- tränar max 2 korta pass/vecka (20–30 min)
 
-Ge:
-1. Vad han ska göra idag
-2. Vad han ska äta
-3. En liten förbättring
+Svara EXAKT i detta format:
 
-Kort, konkret.
+AKTIVITET:
+...
+
+MAT:
+...
+
+OPTIMERING:
+...
+
+Kort och konkret.
 `;
-
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
