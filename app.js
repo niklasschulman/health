@@ -3,6 +3,24 @@ let tab = "home";
 let weights = JSON.parse(localStorage.getItem("weights")) || [];
 let logs = JSON.parse(localStorage.getItem("logs")) || {};
 let history = JSON.parse(localStorage.getItem("history")) || [];
+async function getAIAdvice() {
+
+  let res = await fetch("https://health-bay-alpha.vercel.app/api/coach", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      weight: weights.at(-1) || 65,
+      weights: weights,
+      history: history
+    })
+  });
+
+  let data = await res.json();
+
+  return data.text;
+}
 
 function save() {
   localStorage.setItem("weights", JSON.stringify(weights));
