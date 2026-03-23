@@ -1,106 +1,132 @@
 let tab = "home";
 
 let weights = JSON.parse(localStorage.getItem("weights")) || [];
-let logs = JSON.parse(localStorage.getItem("logs")) || {};
-let history = JSON.parse(localStorage.getItem("history")) || [];
+let aiHistory = JSON.parse(localStorage.getItem("aiHistory")) || [];
+
+function save() {
+  localStorage.setItem("weights", JSON.stringify(weights));
+  localStorage.setItem("aiHistory", JSON.stringify(aiHistory));
+}
+
+// 📅 datum + tid
+function getNow() {
+  return new Date();
+}
+
+function getTodayKey() {
+  let d = new Date();
+  return d.toISOString().split("T")[0];
+}
+
+// 🧠 check om nytt råd behövs (kl 05)
+function shouldFetchNewAdvice() {
+
+  if (aiHistory.length === 0) return true;
+
+  let last = aiHistory[0];
+  let now = getNow();
+
+  let today5 = new Date();
+  today5.setHours(5,0,0,0);
+
+  let lastDate = new Date(last.date);
+
+  return lastDate < today5 && now >= today5;
+}
+
+// 🤖 hämta AI
 async function getAIAdvice() {
 
   let res = await fetch("https://health-bay-alpha.vercel.app/api/coach", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       weight: weights.at(-1) || 65,
-      weights: weights,
-      history: history
+      weights: weights
     })
   });
 
   let data = await res.json();
-
   return data.text;
 }
 
-function save() {
-  localStorage.setItem("weights", JSON.stringify(weights));
-  localStorage.setItem("logs", JSON.stringify(logs));
-  localStorage.setItem("history", JSON.stringify(history));
+// 🧠 daglig coach
+async function getDailyAdvice() {
+
+  if (!shouldFetchNewAdvice()) {
+    return aiHistory[0]?.text;
+  }
+
+  let text = await getAIAdvice();
+
+  aiHistory.unshift({
+    date: new Date().toISOString(),
+    text
+  });
+
+  save();
+
+  return text;
 }
 
-function showTab(t) {
-  tab = t;
-  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
-  event.target.classList.add("active");
-  render();
-}
-
-function getTrend() {
-  if (weights.length < 5) return "neutral";
-  let diff = weights.at(-1) - weights.at(-5);
-  if (diff < -0.5) return "down";
-  if (diff > 0.5) return "up";
-  return "stable";
-}
-
+// 📊 render
 function render() {
+
   let app = document.getElementById("app");
 
+  // HOME
   if (tab === "home") {
 
-  app.innerHTML = `
-    <div class="card">
-      <h3>AI Coach</h3>
-      <p id="aiText">Laddar...</p>
-    </div>
-  `;
-
-  getAIAdvice().then(text => {
-    document.getElementById("aiText").innerText = text;
-  });
-}
-
-  if (tab === "weight") {
     app.innerHTML = `
       <div class="card">
-        <h3>Vikt</h3>
+        <h3>Din coach idag</h3>
+        <div id="aiText" class="ai-box">Laddar...</div>
+      </div>
+    `;
+
+    getDailyAdvice().then(text => {
+      document.getElementById("aiText").innerHTML =
+        text.replace(/\n/g, "<br>");
+    });
+  }
+
+  // VIKT
+  if (tab === "weight") {
+
+    app.innerHTML = `
+      <div class="card">
+        <h3>Logga vikt</h3>
         <input id="w" placeholder="kg">
         <button onclick="addWeight()">Spara</button>
+      </div>
+
+      <div class="card">
+        <h3>Historik</h3>
+        ${weights.map((w,i)=>`
+          <div>${w} kg <button onclick="deleteWeight(${i})">❌</button></div>
+        `).join("")}
+      </div>
+
+      <div class="card">
         <canvas id="chart"></canvas>
       </div>
     `;
+
     renderChart();
   }
 
-  if (tab === "train") {
-    app.innerHTML = `
-      <div class="card">
-        <h3>Träning</h3>
-        ${renderWorkout()}
-      </div>
-    `;
-  }
-
-  if (tab === "food") {
-    let protein = Math.round((weights.at(-1) || 65) * 1.4);
+  // AI HISTORIK
+  if (tab === "history") {
 
     app.innerHTML = `
       <div class="card">
-        <h3>Kost</h3>
-        <p><b>Protein:</b> ${protein} g</p>
-        <p>Kyckling / fisk + potatis + olivolja</p>
-        <p>Ägg, kött, nötter</p>
-      </div>
-    `;
-  }
-
-  if (tab === "plan") {
-    app.innerHTML = `
-      <div class="card">
-        <h3>Vecka</h3>
-        <p>Styrka 2–3 ggr</p>
-        <p>Fasta 1 gång</p>
-        <p>Cykel 1 gång</p>
+        <h3>Tidigare coach-råd</h3>
+        ${aiHistory.map(h=>`
+          <div style="margin-bottom:10px;">
+            <b>${new Date(h.date).toLocaleDateString()}</b><br>
+            ${h.text}
+          </div>
+        `).join("")}
       </div>
     `;
   }
@@ -108,33 +134,7 @@ function render() {
   save();
 }
 
-function generateInsights() {
-  let insights = [];
-
-  if (weights.length > 5) {
-    let diff = weights.at(-1) - weights.at(-5);
-
-    if (diff < -0.7) insights.push("⚠️ Vikten sjunker – öka protein");
-    if (Math.abs(diff) < 0.3) insights.push("✔️ Stabil vikt");
-  }
-
-  if (history.slice(-5).filter(x => x === "strength").length < 2) {
-    insights.push("🏋️ Prioritera styrketräning");
-  }
-
-  return insights;
-}
-
-function renderWorkout() {
-  let exercises = ["Squat", "Armhävningar", "Rodd", "Bridge", "Planka"];
-
-  return exercises.map(e => `
-    <b>${e}</b>
-    <input value="${logs[e] || ''}" 
-    onchange="logs['${e}']=this.value; save()">
-  `).join("<br>");
-}
-
+// vikt
 function addWeight() {
   let v = parseFloat(document.getElementById("w").value);
   if (!v) return;
@@ -142,21 +142,38 @@ function addWeight() {
   render();
 }
 
+function deleteWeight(i) {
+  weights.splice(i,1);
+  render();
+}
+
+// graf
 let chart;
 
 function renderChart() {
   let ctx = document.getElementById("chart");
+  if (!ctx) return;
 
   if (chart) chart.destroy();
 
   chart = new Chart(ctx, {
     type: "line",
     data: {
-      labels: weights.map((_, i) => i + 1),
+      labels: weights.map((_,i)=>i+1),
       datasets: [{ data: weights, tension: 0.3 }]
     },
-    options: { plugins: { legend: { display: false } } }
+    options: {
+      plugins: { legend: { display: false } }
+    }
   });
+}
+
+// tabs
+function showTab(t) {
+  tab = t;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  event.target.classList.add("active");
+  render();
 }
 
 render();
