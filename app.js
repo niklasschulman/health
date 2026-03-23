@@ -18,20 +18,29 @@ function getTodayKey() {
   return d.toISOString().split("T")[0];
 }
 
-// 🧠 check om nytt råd behövs (kl 05)
 function shouldFetchNewAdvice() {
 
   if (aiHistory.length === 0) return true;
 
-  let last = aiHistory[0];
-  let now = getNow();
+  const last = aiHistory[0];
+  const now = new Date();
 
-  let today5 = new Date();
-  today5.setHours(5,0,0,0);
+  const today = now.toISOString().split("T")[0];
+  const lastDay = last.day;
 
-  let lastDate = new Date(last.date);
+  // skapa dagens 05:00
+  const todayAt5 = new Date();
+  todayAt5.setHours(5, 0, 0, 0);
 
-  return lastDate < today5 && now >= today5;
+  // 🔥 Regler:
+  // 1. Om vi redan hämtat idag → NEJ
+  if (lastDay === today) return false;
+
+  // 2. Om klockan är före 05 → använd gårdagens
+  if (now < todayAt5) return false;
+
+  // 3. annars → hämta nytt
+  return true;
 }
 
 // 🤖 hämta AI
@@ -57,10 +66,11 @@ async function getDailyAdvice() {
     return aiHistory[0]?.text;
   }
 
-  let text = await getAIAdvice();
+  const text = await getAIAdvice();
 
   aiHistory.unshift({
     date: new Date().toISOString(),
+    day: new Date().toISOString().split("T")[0],
     text
   });
 
