@@ -1,67 +1,73 @@
-export default async function handler(req, res) {
+export const config = {
+  runtime: "edge",
+};
 
-  // CORS
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+export default async function handler(req) {
 
+  // 🔥 CORS headers
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+
+  // hantera preflight
   if (req.method === "OPTIONS") {
-    return res.status(200).end();
+    return new Response(null, {
+      status: 200,
+      headers: corsHeaders,
+    });
   }
 
   try {
+
+    const body = await req.json();
+
+    const prompt = `
+Du är en personlig hälsocoach.
+
+Person:
+- 51 år
+- tidigare hjärtinfarkt
+- vill minimera träning
+- mål: maximal effekt, minimal insats
+
+Ge:
+1. Vad han ska göra idag
+2. Vad han ska äta
+3. En liten förbättring
+
+Kort, konkret.
+`;
 
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
-        input: 
-          "Du är en personlig hälsocoach.
-Person:
-- 51 år
-- tidigare hjärtinfarkt
-- vill träna så lite som möjligt
-- mål: maximal effekt med minimal insats
-- accepterar ca 2 korta pass/vecka (20–30 min)
-
-Ge:
-1. Vad han ska göra idag (kort)
-2. Exakt vad han ska äta
-3. En liten optimering
-
-Aldrig långa pass. Aldrig överdriven träning."
-
-        
-      })
+        input: prompt,
+      }),
     });
 
     const data = await response.json();
 
-    console.log("OPENAI RAW:", data);
+    const text = data.output_text || "Inget AI-svar";
 
-    // 🔥 enklaste möjliga parsing
-    let text = "";
-
-    if (data.output && data.output.length > 0) {
-      const content = data.output[0].content;
-
-      if (content && content.length > 0) {
-        text = content[0].text || "";
-      }
-    }
-
-    if (!text) {
-      text = JSON.stringify(data);
-    }
-
-    return res.status(200).json({ text });
+    return new Response(JSON.stringify({ text }), {
+      status: 200,
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
+    });
 
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Server error" });
+    return new Response(JSON.stringify({ error: "Server error" }), {
+      status: 500,
+      headers: corsHeaders,
+    });
   }
 }
