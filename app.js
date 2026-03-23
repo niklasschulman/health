@@ -47,7 +47,30 @@ body: JSON.stringify({
   weight: weights.at(-1) || 65,
   weights: weights
 })
+let chart;
 
+function renderChart() {
+
+  const ctx = document.getElementById("chart");
+
+  if (!ctx) return;
+
+  if (chart) chart.destroy();
+
+  chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: weights.map((_, i) => i + 1),
+      datasets: [{
+        data: weights,
+        tension: 0.3
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } }
+    }
+  });
+}
 async function getAI() {
 
   try {
@@ -75,3 +98,4 @@ document.getElementById("ai").innerHTML = formatAI(data.text) || "Inget svar";
 }
 
 getAI();
+renderChart();
