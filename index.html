@@ -6,18 +6,68 @@
 
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+.header-sub {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+.tabs {
+  display: flex;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tab {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.active {
+  color: #1976d2;
+  border-bottom: 3px solid #1976d2;
+}
+
+.container {
+  padding: 16px;
+}
+
+.ai-box {
+  background: linear-gradient(135deg, #eef3ff, #f7f9ff);
+  padding: 14px;
+  border-radius: 14px;
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+.section-title {
+  font-size: 14px;
+  opacity: 0.6;
+  margin-bottom: 6px;
+}
+</style>
 </head>
 
 <body>
 
-<header>AI Hälsocoach</header>
-<p id="aiText" class="ai-box">Laddar...</p>
+<header>
+  AI Hälsocoach
+  <div class="header-sub">Minimal insats • Maximal effekt</div>
+</header>
+
 <div class="tabs">
-<div class="tab active" onclick="showTab('home')">Hem</div>
-<div class="tab" onclick="showTab('train')">Träning</div>
-<div class="tab" onclick="showTab('weight')">Vikt</div>
-<div class="tab" onclick="showTab('food')">Kost</div>
-<div class="tab" onclick="showTab('plan')">Plan</div>
+  <div class="tab active" onclick="showTab('home')">Hem</div>
+  <div class="tab" onclick="showTab('train')">Träning</div>
+  <div class="tab" onclick="showTab('weight')">Vikt</div>
+  <div class="tab" onclick="showTab('food')">Kost</div>
+  <div class="tab" onclick="showTab('plan')">Plan</div>
 </div>
 
 <div id="app" class="container"></div>
