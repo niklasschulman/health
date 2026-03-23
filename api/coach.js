@@ -22,7 +22,7 @@ export default async function handler(req, res) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "gpt-5.3-instant",
+        model: "gpt-4.1-mini",
         input: "Ge ett kort hälsoråd"
       })
     });
