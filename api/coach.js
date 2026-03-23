@@ -54,8 +54,26 @@ Kort, konkret.
 
     const data = await response.json();
 
-    const text = data.output_text || "Inget AI-svar";
+let text = "";
 
+// Försök läsa standardstruktur
+if (data.output && data.output.length > 0) {
+  const content = data.output[0].content;
+
+  if (Array.isArray(content)) {
+    for (const item of content) {
+      if (item.type === "output_text" && item.text) {
+        text += item.text;
+      }
+    }
+  }
+}
+
+// fallback – visa hela svaret om parsing misslyckas
+if (!text) {
+  text = JSON.stringify(data);
+}
+    
     return new Response(JSON.stringify({ text }), {
       status: 200,
       headers: {
