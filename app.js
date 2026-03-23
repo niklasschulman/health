@@ -87,9 +87,11 @@ async function getAI() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        weight: 65
-      })
+body: JSON.stringify({
+  weight: weights.at(-1) || 65,
+  weights: weights,
+  history: history
+})
     });
 
     const data = await res.json();
