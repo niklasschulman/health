@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
 
-  // 🔥 CORS (viktigt för GitHub Pages)
+  // 🔥 CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -15,28 +15,37 @@ export default async function handler(req, res) {
 
   try {
 
-    const { weight = 65, weights = [], history = [] } = req.body || {};
+    const { weight, weights, history } = req.body || {};
 
-    // 🧠 Prompt (kan förbättras senare)
-const prompt = `
-Skapa en veckoplan (Måndag–Söndag).
+    const prompt = `
+Du är en personlig hälsocoach.
+
+Person:
+- 51 år
+- tidigare hjärtinfarkt
+- vikt: ${weight || "okänd"}
+- vill minimera styrketräning
+- tränar helst 2 korta pass/vecka (20–30 min)
+- använder fasta
+
+Mål:
+- behålla vikt
+- bygga lite muskler
+- minimera risk
 
 Regler:
-- 2–3 styrkepass
-- 1 cykeldag: ${cycleDay}
-- 1 fastedag: ${fastDay}
-- ingen styrka på fastedag
-- vila efter fasta
+- föreslå ALDRIG långa pass
+- håll träning kort och effektiv
+- prioritera realism
 
-Returnera ENDAST JSON i detta format:
+Ge:
+1. Vad personen ska göra idag
+2. En konkret måltid (exakt mat)
+3. En liten förbättring
 
-[
-  {"day":"Måndag","activity":"..."},
-  ...
-]
+Kort, konkret, utan fluff.
 `;
 
-    // 🤖 OpenAI-anrop
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
@@ -56,21 +65,27 @@ Returnera ENDAST JSON i detta format:
 
     const data = await response.json();
 
-    // 🔍 Fel från OpenAI
+    // 🔍 Om OpenAI returnerar fel
     if (!response.ok) {
       console.error("OpenAI error:", data);
       return res.status(500).json({ error: data });
     }
 
-    // 🧠 Robust parsing
-    let text = "Inget svar från AI";
+    // 🔥 ROBUST parsing (fixar ditt problem)
+    let text = "";
 
-    if (data.output_text) {
-      text = data.output_text;
-    } else if (data.output?.[0]?.content?.[0]?.text) {
-      text = data.output[0].content[0].text;
-    } else {
-      console.log("Okänt svarformat:", data);
+    if (data.output && data.output.length > 0) {
+      const content = data.output[0].content;
+
+      for (let item of content) {
+        if (item.type === "output_text") {
+          text += item.text;
+        }
+      }
+    }
+
+    if (!text) {
+      text = "AI svar kunde inte tolkas";
     }
 
     return res.status(200).json({ text });
