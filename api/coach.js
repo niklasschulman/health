@@ -19,26 +19,21 @@ export default async function handler(req, res) {
 
     // 🧠 Prompt (kan förbättras senare)
 const prompt = `
-Du är en personlig hälsocoach.
-
-Person:
-- 51 år
-- tidigare hjärtinfarkt
-- vill minimera styrketräning
-- mål: maximal effekt med minimal insats
-- tränar helst 2 korta pass/vecka (~30 min)
+Skapa en veckoplan (Måndag–Söndag).
 
 Regler:
-- föreslå ALDRIG långa pass
-- håll styrketräning minimal
-- prioritera effektivitet
+- 2–3 styrkepass
+- 1 cykeldag: ${cycleDay}
+- 1 fastedag: ${fastDay}
+- ingen styrka på fastedag
+- vila efter fasta
 
-Ge:
-1. Vad personen ska göra idag (kort)
-2. Ev. liten justering
-3. Ev. andra tips för förbättrat mående
+Returnera ENDAST JSON i detta format:
 
-Kort, konkret, realistiskt.
+[
+  {"day":"Måndag","activity":"..."},
+  ...
+]
 `;
 
     // 🤖 OpenAI-anrop
