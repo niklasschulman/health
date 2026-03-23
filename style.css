@@ -65,6 +65,13 @@ input {
   display: inline-block;
 }
 
+.ai-box {
+  background: #f0f4ff;
+  padding: 12px;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+
 .green { background: #d4edda; }
 .orange { background: #fff3cd; }
 .red { background: #f8d7da; }
