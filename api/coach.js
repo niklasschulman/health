@@ -71,22 +71,32 @@ Kort, konkret, utan fluff.
       return res.status(500).json({ error: data });
     }
 
-    // 🔥 ROBUST parsing (fixar ditt problem)
-    let text = "";
+let text = "";
 
-    if (data.output && data.output.length > 0) {
-      const content = data.output[0].content;
+// 🔥 Försök 1 – vanlig struktur
+if (data.output && data.output.length > 0) {
+  const content = data.output[0].content;
 
-      for (let item of content) {
-        if (item.type === "output_text") {
-          text += item.text;
-        }
+  if (Array.isArray(content)) {
+    for (let item of content) {
+      if (item.type === "output_text" && item.text) {
+        text += item.text;
       }
     }
+  }
+}
 
-    if (!text) {
-      text = "AI svar kunde inte tolkas";
-    }
+// 🔥 Försök 2 – fallback (ibland ligger text direkt)
+if (!text && data.output_text) {
+  text = data.output_text;
+}
+
+// 🔥 Försök 3 – sista fallback (debug)
+if (!text) {
+  console.log("FULL OPENAI RESPONSE:", JSON.stringify(data, null, 2));
+  text = "AI svar fel format (se logs)";
+}
+    
 
     return res.status(200).json({ text });
 
