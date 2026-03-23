@@ -5,27 +5,10 @@ body {
 }
 
 header {
-  background: linear-gradient(135deg, #0b3d91, #1976d2);
+  background: #0b3d91;
   color: white;
-  padding: 20px;
-  font-size: 22px;
-}
-
-.tabs {
-  display: flex;
-  background: white;
-}
-
-.tab {
-  flex: 1;
-  padding: 12px;
-  text-align: center;
-  cursor: pointer;
-}
-
-.active {
-  background: #1976d2;
-  color: white;
+  padding: 16px;
+  font-size: 20px;
 }
 
 .container {
@@ -34,22 +17,6 @@ header {
 
 .card {
   background: white;
-  border-radius: 18px;
-  padding: 18px;
-  margin-bottom: 14px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-}
-
-select, button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 10px;
-}
-
-.plan-day {
-  padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 8px;
-  background: #f0f4ff;
+  border-radius: 12px;
+  padding: 16px;
 }
