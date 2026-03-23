@@ -31,6 +31,17 @@ function formatAI(text) {
     </div>
   `;
 }
+let weights = JSON.parse(localStorage.getItem("weights")) || [];
+
+function saveWeight() {
+  const val = parseFloat(document.getElementById("weightInput").value);
+  if (!val) return;
+
+  weights.push(val);
+  localStorage.setItem("weights", JSON.stringify(weights));
+
+  alert("Sparat!");
+}
 
 async function getAI() {
 
