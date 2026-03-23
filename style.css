@@ -1,0 +1,70 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont;
+  margin: 0;
+  background: #f2f5f9;
+}
+
+header {
+  background: linear-gradient(135deg, #0b3d91, #1976d2);
+  color: white;
+  padding: 20px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.tabs {
+  display: flex;
+  background: white;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 12px;
+  cursor: pointer;
+}
+
+.active {
+  background: #1976d2;
+  color: white;
+}
+
+.container {
+  padding: 16px;
+}
+
+.card {
+  background: white;
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: #1976d2;
+  color: white;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.badge {
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  display: inline-block;
+}
+
+.green { background: #d4edda; }
+.orange { background: #fff3cd; }
+.red { background: #f8d7da; }
