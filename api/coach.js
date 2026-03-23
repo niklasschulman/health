@@ -32,7 +32,8 @@ Person:
 - vill minimera träning
 - mål: maximal effekt med minimal insats
 - tränar max 2 korta pass/vecka (20–30 min)
-
+- Vikt nu: ${body.weight}
+- Vikttrend: ${JSON.stringify(body.weights)}
 Svara EXAKT i detta format:
 
 AKTIVITET:
