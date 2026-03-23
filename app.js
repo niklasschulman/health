@@ -43,6 +43,11 @@ function saveWeight() {
   alert("Sparat!");
 }
 
+body: JSON.stringify({
+  weight: weights.at(-1) || 65,
+  weights: weights
+})
+
 async function getAI() {
 
   try {
