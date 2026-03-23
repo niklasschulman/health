@@ -34,11 +34,17 @@ export default async function handler(req, res) {
       console.error("OpenAI error:", data);
      return res.status(500).json({ error: data });
     }
+let text = "Inget svar från AI";
 
-    const text =
-      data.output?.[0]?.content?.[0]?.text ||
-      "Inget svar från AI";
+try {
+  text = data.output[0].content[0].text;
+} catch (e) {
+  console.log("Fallback parsing...", data);
 
+  // fallback – ibland ligger det här istället
+  text = data.output_text || "Inget svar från AI";
+}
+    
     return res.status(200).json({ text });
 
   } catch (err) {
