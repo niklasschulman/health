@@ -1,3 +1,11 @@
+let history = JSON.parse(localStorage.getItem("history")) || [];
+
+function logWorkout() {
+  history.push("strength");
+  localStorage.setItem("history", JSON.stringify(history));
+  alert("Träning loggad");
+}
+
 function formatAI(text) {
 
   const parts = {
