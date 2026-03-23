@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
 
-  // 🔥 CORS
+  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -9,42 +9,7 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Only POST allowed" });
-  }
-
   try {
-
-    const { weight, weights, history } = req.body || {};
-
-    const prompt = `
-Du är en personlig hälsocoach.
-
-Person:
-- 51 år
-- tidigare hjärtinfarkt
-- vikt: ${weight || "okänd"}
-- vill minimera styrketräning
-- tränar helst 2 korta pass/vecka (20–30 min)
-- använder fasta
-
-Mål:
-- behålla vikt
-- bygga lite muskler
-- minimera risk
-
-Regler:
-- föreslå ALDRIG långa pass
-- håll träning kort och effektiv
-- prioritera realism
-
-Ge:
-1. Vad personen ska göra idag
-2. En konkret måltid (exakt mat)
-3. En liten förbättring
-
-Kort, konkret, utan fluff.
-`;
 
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
@@ -54,54 +19,33 @@ Kort, konkret, utan fluff.
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
-        input: [
-          {
-            role: "user",
-            content: prompt
-          }
-        ]
+        input: "Ge ett kort hälsoråd för en 51-åring som vill träna minimalt"
       })
     });
 
     const data = await response.json();
 
-    // 🔍 Om OpenAI returnerar fel
-    if (!response.ok) {
-      console.error("OpenAI error:", data);
-      return res.status(500).json({ error: data });
-    }
+    console.log("OPENAI RAW:", data);
 
-let text = "";
+    // 🔥 enklaste möjliga parsing
+    let text = "";
 
-// 🔥 Försök 1 – vanlig struktur
-if (data.output && data.output.length > 0) {
-  const content = data.output[0].content;
+    if (data.output && data.output.length > 0) {
+      const content = data.output[0].content;
 
-  if (Array.isArray(content)) {
-    for (let item of content) {
-      if (item.type === "output_text" && item.text) {
-        text += item.text;
+      if (content && content.length > 0) {
+        text = content[0].text || "";
       }
     }
-  }
-}
 
-// 🔥 Försök 2 – fallback (ibland ligger text direkt)
-if (!text && data.output_text) {
-  text = data.output_text;
-}
-
-// 🔥 Försök 3 – sista fallback (debug)
-if (!text) {
-  console.log("FULL OPENAI RESPONSE:", JSON.stringify(data, null, 2));
-  text = "AI svar fel format (se logs)";
-}
-    
+    if (!text) {
+      text = JSON.stringify(data);
+    }
 
     return res.status(200).json({ text });
 
   } catch (err) {
-    console.error("Server error:", err);
+    console.error(err);
     return res.status(500).json({ error: "Server error" });
   }
 }
