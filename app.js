@@ -47,21 +47,18 @@ function render() {
   let app = document.getElementById("app");
 
   if (tab === "home") {
-    let trend = getTrend();
-    let badge = "";
 
-    if (trend === "stable") badge = "<div class='badge green'>Stabil ✔️</div>";
-    if (trend === "down") badge = "<div class='badge orange'>Ner ↘</div>";
-    if (trend === "up") badge = "<div class='badge red'>Upp ↗</div>";
+  app.innerHTML = `
+    <div class="card">
+      <h3>AI Coach</h3>
+      <p id="aiText">Laddar...</p>
+    </div>
+  `;
 
-    app.innerHTML = `
-      <div class="card">
-        <h3>AI Coach</h3>
-        <p>${generateInsights().join("<br>")}</p>
-        ${badge}
-      </div>
-    `;
-  }
+  getAIAdvice().then(text => {
+    document.getElementById("aiText").innerText = text;
+  });
+}
 
   if (tab === "weight") {
     app.innerHTML = `
