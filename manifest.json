@@ -1,0 +1,8 @@
+{
+  "name": "AI Hälsocoach",
+  "short_name": "Hälsa",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#0b3d91",
+  "background_color": "#ffffff"
+}
