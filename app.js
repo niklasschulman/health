@@ -1,181 +1,9 @@
-let tab = "home";
+let tab = "plan";
 
-let weights = JSON.parse(localStorage.getItem("weights")) || [];
-let aiHistory = JSON.parse(localStorage.getItem("aiHistory")) || [];
+let plan = JSON.parse(localStorage.getItem("plan")) || null;
 
 function save() {
-  localStorage.setItem("weights", JSON.stringify(weights));
-  localStorage.setItem("aiHistory", JSON.stringify(aiHistory));
-}
-
-// 📅 datum + tid
-function getNow() {
-  return new Date();
-}
-
-function getTodayKey() {
-  let d = new Date();
-  return d.toISOString().split("T")[0];
-}
-
-function shouldFetchNewAdvice() {
-
-  if (aiHistory.length === 0) return true;
-
-  const last = aiHistory[0];
-  const now = new Date();
-
-  const today = now.toISOString().split("T")[0];
-  const lastDay = last.day;
-
-  // skapa dagens 05:00
-  const todayAt5 = new Date();
-  todayAt5.setHours(5, 0, 0, 0);
-
-  // 🔥 Regler:
-  // 1. Om vi redan hämtat idag → NEJ
-  if (lastDay === today) return false;
-
-  // 2. Om klockan är före 05 → använd gårdagens
-  if (now < todayAt5) return false;
-
-  // 3. annars → hämta nytt
-  return true;
-}
-
-// 🤖 hämta AI
-async function getAIAdvice() {
-
-  let res = await fetch("https://health-bay-alpha.vercel.app/api/coach", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      weight: weights.at(-1) || 65,
-      weights: weights
-    })
-  });
-
-  let data = await res.json();
-  return data.text;
-}
-
-// 🧠 daglig coach
-async function getDailyAdvice() {
-
-  if (!shouldFetchNewAdvice()) {
-    return aiHistory[0]?.text;
-  }
-
-  const text = await getAIAdvice();
-
-  aiHistory.unshift({
-    date: new Date().toISOString(),
-    day: new Date().toISOString().split("T")[0],
-    text
-  });
-
-  save();
-
-  return text;
-}
-
-// 📊 render
-function render() {
-
-  let app = document.getElementById("app");
-
-  // HOME
-  if (tab === "home") {
-
-    app.innerHTML = `
-      <div class="card">
-        <h3>Din coach idag</h3>
-        <div id="aiText" class="ai-box">Laddar...</div>
-      </div>
-    `;
-
-    getDailyAdvice().then(text => {
-      document.getElementById("aiText").innerHTML =
-        text.replace(/\n/g, "<br>");
-    });
-  }
-
-  // VIKT
-  if (tab === "weight") {
-
-    app.innerHTML = `
-      <div class="card">
-        <h3>Logga vikt</h3>
-        <input id="w" placeholder="kg">
-        <button onclick="addWeight()">Spara</button>
-      </div>
-
-      <div class="card">
-        <h3>Historik</h3>
-        ${weights.map((w,i)=>`
-          <div>${w} kg <button onclick="deleteWeight(${i})">❌</button></div>
-        `).join("")}
-      </div>
-
-      <div class="card">
-        <canvas id="chart"></canvas>
-      </div>
-    `;
-
-    renderChart();
-  }
-
-  // AI HISTORIK
-  if (tab === "history") {
-
-    app.innerHTML = `
-      <div class="card">
-        <h3>Tidigare coach-råd</h3>
-        ${aiHistory.map(h=>`
-          <div style="margin-bottom:10px;">
-            <b>${new Date(h.date).toLocaleDateString()}</b><br>
-            ${h.text}
-          </div>
-        `).join("")}
-      </div>
-    `;
-  }
-
-  save();
-}
-
-// vikt
-function addWeight() {
-  let v = parseFloat(document.getElementById("w").value);
-  if (!v) return;
-  weights.push(v);
-  render();
-}
-
-function deleteWeight(i) {
-  weights.splice(i,1);
-  render();
-}
-
-// graf
-let chart;
-
-function renderChart() {
-  let ctx = document.getElementById("chart");
-  if (!ctx) return;
-
-  if (chart) chart.destroy();
-
-  chart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: weights.map((_,i)=>i+1),
-      datasets: [{ data: weights, tension: 0.3 }]
-    },
-    options: {
-      plugins: { legend: { display: false } }
-    }
-  });
+  localStorage.setItem("plan", JSON.stringify(plan));
 }
 
 // tabs
@@ -183,6 +11,96 @@ function showTab(t) {
   tab = t;
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
   event.target.classList.add("active");
+  render();
+}
+
+// render
+function render() {
+
+  let app = document.getElementById("app");
+
+  // PLAN VIEW
+  if (tab === "plan") {
+
+    if (!plan) {
+      app.innerHTML = `
+        <div class="card">
+          <h3>Ingen plan ännu</h3>
+          <p>Gå till inställningar och skapa en</p>
+        </div>
+      `;
+      return;
+    }
+
+    app.innerHTML = `
+      <div class="card">
+        <h3>Din vecka</h3>
+        ${plan.map(day => `
+          <div class="plan-day">
+            <b>${day.day}</b><br>
+            ${day.activity}
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  // SETTINGS
+  if (tab === "settings") {
+
+    app.innerHTML = `
+      <div class="card">
+        <h3>Skapa veckoplan</h3>
+
+        <label>Cykeldag</label>
+        <select id="cycle">
+          <option>Måndag</option>
+          <option>Tisdag</option>
+          <option>Onsdag</option>
+          <option>Torsdag</option>
+          <option>Fredag</option>
+        </select>
+
+        <label>Fastedag</label>
+        <select id="fast">
+          <option>Måndag</option>
+          <option>Tisdag</option>
+          <option>Onsdag</option>
+          <option>Torsdag</option>
+          <option>Fredag</option>
+        </select>
+
+        <button onclick="generatePlan()">Skapa plan</button>
+      </div>
+    `;
+  }
+
+  save();
+}
+
+// AI-anrop
+async function generatePlan() {
+
+  let cycle = document.getElementById("cycle").value;
+  let fast = document.getElementById("fast").value;
+
+  let res = await fetch("https://health-bay-alpha.vercel.app/api/coach", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      cycleDay: cycle,
+      fastDay: fast
+    })
+  });
+
+  let data = await res.json();
+
+  try {
+    plan = JSON.parse(data.text);
+  } catch {
+    alert("AI svar fel format");
+  }
+
   render();
 }
 
