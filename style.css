@@ -40,24 +40,16 @@ header {
   box-shadow: 0 6px 18px rgba(0,0,0,0.06);
 }
 
-.ai-box {
-  background: #f0f4ff;
-  padding: 14px;
-  border-radius: 14px;
-  margin-top: 10px;
-}
-
-button {
+select, button {
   width: 100%;
   padding: 12px;
-  border-radius: 12px;
-  border: none;
-  background: #1976d2;
-  color: white;
+  margin-top: 10px;
+  border-radius: 10px;
 }
 
-input {
-  width: 100%;
+.plan-day {
   padding: 10px;
-  margin-top: 6px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  background: #f0f4ff;
 }
