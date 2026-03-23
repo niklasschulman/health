@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     // 🔍 Felsökning om något går fel
     if (!response.ok) {
       console.error("OpenAI error:", data);
-      return res.status(500).json({ error: "OpenAI error" });
+     return res.status(500).json({ error: data });
     }
 
     const text =
