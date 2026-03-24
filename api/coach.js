@@ -34,12 +34,10 @@ Person:
 - tränar max 2 korta pass/vecka (20–30 min)
 - Vikt nu: ${body.weight}
 - Vikttrend: ${JSON.stringify(body.weights)}
+- Viktmål: vikt runt 65 kilo, någon dag i veckan bör ligga under 65 kilo
 Svara EXAKT i detta format:
 
 AKTIVITET:
-...
-
-MAT:
 ...
 
 OPTIMERING:
