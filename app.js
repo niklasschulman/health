@@ -39,18 +39,37 @@ function formatAI(text) {
     </div>
   `;
 }
+
 let weights = JSON.parse(localStorage.getItem("weights")) || [];
 
 function saveWeight() {
-  const val = parseFloat(document.getElementById("weightInput").value);
-  if (!val) return;
 
-  weights.push(val);
+  const weight = parseFloat(document.getElementById("weightInput").value);
+  const date = document.getElementById("dateInput").value;
+
+  if (!weight || !date) {
+    alert("Ange både vikt och datum");
+    return;
+  }
+
+  // kolla om datum redan finns → ersätt
+  const existingIndex = weights.findIndex(w => w.date === date);
+
+  if (existingIndex >= 0) {
+    weights[existingIndex].weight = weight;
+  } else {
+    weights.push({ date, weight });
+  }
+
+  // sortera efter datum
+  weights.sort((a, b) => new Date(a.date) - new Date(b.date));
+
   localStorage.setItem("weights", JSON.stringify(weights));
 
   alert("Sparat!");
-}
 
+  renderChart();
+}
 body: JSON.stringify({
   weight: weights.at(-1) || 65,
   weights: weights
@@ -60,17 +79,19 @@ let chart;
 function renderChart() {
 
   const ctx = document.getElementById("chart");
-
   if (!ctx) return;
 
   if (chart) chart.destroy();
 
+  const labels = weights.map(w => w.date);
+  const data = weights.map(w => w.weight);
+
   chart = new Chart(ctx, {
     type: "line",
     data: {
-      labels: weights.map((_, i) => i + 1),
+      labels: labels,
       datasets: [{
-        data: weights,
+        data: data,
         tension: 0.3
       }]
     },
@@ -88,7 +109,7 @@ async function getAI() {
         "Content-Type": "application/json"
       },
 body: JSON.stringify({
-  weight: weights.at(-1) || 65,
+  weight: weights.at(-1)?.weight || 65,
   weights: weights,
   history: history
 })
