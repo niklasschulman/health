@@ -1,5 +1,48 @@
 let history = JSON.parse(localStorage.getItem("history")) || [];
 
+function importWeights() {
+
+  const text = document.getElementById("importData").value;
+
+  const lines = text.split("\n");
+
+  let imported = [];
+
+  lines.forEach(line => {
+
+    const [date, weight] = line.split(",");
+
+    if (!date || !weight) return;
+
+    imported.push({
+      date: date.trim(),
+      weight: parseFloat(weight.trim())
+    });
+
+  });
+
+  // slå ihop med befintlig data
+  weights = [...weights, ...imported];
+
+  // ta bort dubletter (senaste vinner)
+  const map = {};
+
+  weights.forEach(w => {
+    map[w.date] = w;
+  });
+
+  weights = Object.values(map);
+
+  // sortera
+  weights.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  localStorage.setItem("weights", JSON.stringify(weights));
+
+  alert("Import klar!");
+
+  renderChart();
+}
+
 function formatWeek(text) {
   const days = text.split("\n");
   let html = "";
