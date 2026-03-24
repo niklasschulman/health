@@ -18,37 +18,27 @@
 </style>
 
 </head>
-
 <body>
-
 <header>AI Hälsocoach</header>
 
 <div class="container">
-
   <div class="card">
     <h3>Dagens plan</h3>
     <div id="ai" class="ai-box">Laddar...</div>
     <div class="card">
-    <h3>Vikt</h3>
-      <input id="weightInput" placeholder="Ange vikt (kg)">
+      <h3>Vikt</h3>
+      <input id="weightInput" placeholder="kg">
+      <input type="date" id="dateInput">
       <button onclick="saveWeight()">Spara</button>
     </div>
   </div>
-<canvas id="chart" height="120"></canvas>
+  <canvas id="chart" height="120"></canvas>
 </div>
 <div class="card">
   <h3>Träning</h3>
   <button onclick="logWorkout()">Klar</button>
 </div>
-  <div class="card">
-  <h3>Vikt</h3>
 
-  <input id="weightInput" placeholder="kg">
-
-  <input type="date" id="dateInput">
-
-  <button onclick="saveWeight()">Spara</button>
-</div>
 <script src="app.js"></script>
 
 </body>
