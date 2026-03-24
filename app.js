@@ -5,7 +5,16 @@ function logWorkout() {
   localStorage.setItem("history", JSON.stringify(history));
   alert("Träning loggad");
 }
+let settings = JSON.parse(localStorage.getItem("settings")) || {};
 
+function saveSettings() {
+  settings.cycleDay = document.getElementById("cycleDay").value;
+  settings.fastDay = document.getElementById("fastDay").value;
+
+  localStorage.setItem("settings", JSON.stringify(settings));
+
+  alert("Sparat!");
+}
 function formatAI(text) {
 
   const parts = {
