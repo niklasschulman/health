@@ -1,5 +1,18 @@
 let history = JSON.parse(localStorage.getItem("history")) || [];
 
+function formatWeek(text) {
+  const days = text.split("\n");
+  let html = "";
+  days.forEach(line => {
+    if (line.includes(":")) {
+      html += `<h4>${line}</h4>`;
+    } else {
+      html += `<p>${line}</p>`;
+    }
+  });
+  return html;
+}
+
 function logWorkout() {
   history.push("strength");
   localStorage.setItem("history", JSON.stringify(history));
