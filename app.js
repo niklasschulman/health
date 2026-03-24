@@ -10,7 +10,6 @@ function formatAI(text) {
 
   const parts = {
     aktivitet: "",
-    mat: "",
     optimering: ""
   };
 
@@ -21,7 +20,6 @@ function formatAI(text) {
   lines.forEach(line => {
 
     if (line.includes("AKTIVITET")) current = "aktivitet";
-    else if (line.includes("MAT")) current = "mat";
     else if (line.includes("OPTIMERING")) current = "optimering";
     else if (current) parts[current] += line + " ";
   });
@@ -30,9 +28,6 @@ function formatAI(text) {
     <div>
       <h4>🏃‍♂️ Idag</h4>
       <p>${parts.aktivitet}</p>
-
-      <h4>🍽️ Mat</h4>
-      <p>${parts.mat}</p>
 
       <h4>⚙️ Förbättring</h4>
       <p>${parts.optimering}</p>
