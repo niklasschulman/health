@@ -137,7 +137,7 @@ body: JSON.stringify({
 
     console.log("API svar:", data);
 
-document.getElementById("ai").innerHTML = formatAI(data.text) || "Inget svar";
+document.getElementById("ai").innerHTML = formatWeek(data.text) || "Inget svar";
 
   } catch (err) {
     console.error(err);
