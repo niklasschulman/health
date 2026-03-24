@@ -23,27 +23,42 @@ export default async function handler(req) {
 
     const body = await req.json();
 
-const prompt = `
+onst prompt = `
 Du är en personlig hälsocoach.
 
 Person:
 - 51 år
 - tidigare hjärtinfarkt
 - vill minimera träning
-- mål: maximal effekt med minimal insats
-- tränar max 2 korta pass/vecka (20–30 min)
-- Vikt nu: ${body.weight}
-- Vikttrend: ${JSON.stringify(body.weights)}
-- Viktmål: vikt runt 65 kilo, någon dag i veckan bör ligga under 65 kilo
-Svara EXAKT i detta format:
+- max 2 korta styrkepass/vecka (20–30 min)
 
-AKTIVITET:
+Regler:
+- ingen styrketräning på fastedag
+- cykeldag är redan kondition
+- träning ska vara kort och lätt
+
+Inställningar:
+- Cykeldag: ${body.settings?.cycleDay}
+- Fastedag: ${body.settings?.fastDay}
+
+Skapa ett VECKOSCHEMA:
+
+Måndag:
 ...
 
-OPTIMERING:
+Tisdag:
 ...
 
-Kort och konkret.
+...
+
+Söndag:
+...
+
+Varje dag ska ha:
+- aktivitet (kort)
+- ev. kostråd
+
+Kort, tydligt, realistiskt.
 `;
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
