@@ -34,6 +34,33 @@
   </div>
   <canvas id="chart" height="120"></canvas>
 </div>
+  <div class="card">
+  <h3>Veckoinställningar</h3>
+
+  <label>Cykeldag:</label>
+  <select id="cycleDay">
+    <option>Måndag</option>
+    <option>Tisdag</option>
+    <option>Onsdag</option>
+    <option>Torsdag</option>
+    <option>Fredag</option>
+    <option>Lördag</option>
+    <option>Söndag</option>
+  </select>
+
+  <label>Fastedag:</label>
+  <select id="fastDay">
+    <option>Måndag</option>
+    <option>Tisdag</option>
+    <option>Onsdag</option>
+    <option>Torsdag</option>
+    <option>Fredag</option>
+    <option>Lördag</option>
+    <option>Söndag</option>
+  </select>
+
+  <button onclick="saveSettings()">Spara</button>
+</div>
 <div class="card">
   <h3>Träning</h3>
   <button onclick="logWorkout()">Klar</button>
