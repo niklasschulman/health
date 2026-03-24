@@ -115,7 +115,8 @@ async function getAI() {
 body: JSON.stringify({
   weight: weights.at(-1)?.weight || 65,
   weights: weights,
-  history: history
+  history: history,
+  settings: settings
 })
     });
 
