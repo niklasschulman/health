@@ -41,6 +41,7 @@ function importWeights() {
   alert("Import klar!");
 
   renderChart();
+  syncToServer();
 }
 async function syncToServer() {
 
@@ -139,6 +140,7 @@ function saveWeight() {
   alert("Sparat!");
 
   renderChart();
+  syncToServer();
 }
 body: JSON.stringify({
   weight: weights.at(-1) || 65,
