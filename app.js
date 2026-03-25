@@ -202,7 +202,9 @@ document.getElementById("ai").innerHTML = formatWeek(data.text) || "Inget svar";
 }
 
 getAI();
-renderChart();
+loadFromServer().then(() => {
+  renderChart();
+});
 async function loadFromServer() {
 
   const res = await fetch("https://health-bay-alpha.vercel.app/api/store");
