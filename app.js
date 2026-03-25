@@ -42,7 +42,17 @@ function importWeights() {
 
   renderChart();
 }
+async function syncToServer() {
 
+  await fetch("https://health-bay-alpha.vercel.app/api/store", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(weights)
+  });
+
+}
 function formatWeek(text) {
   const days = text.split("\n");
   let html = "";
