@@ -1,78 +1,8 @@
-<!DOCTYPE html>
-<html lang="sv">
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<title>AI Hälsocoach</title>
-
-<link rel="stylesheet" href="style.css">
-
-<style>
-.ai-box {
-  background: #eef3ff;
-  padding: 14px;
-  border-radius: 12px;
-  margin-top: 10px;
-  line-height: 1.5;
-}
-</style>
-
-</head>
-<body>
-<header>AI Hälsocoach</header>
-<div class="card">
-  <h3>Importera vikt</h3>
-
-  <textarea id="importData" rows="6" placeholder="2026-03-01,65"></textarea>
-
-  <button onclick="importWeights()">Importera</button>
-</div>
-<div class="container">
-  <div class="card">
-    <h3>Dagens plan</h3>
-    <div id="ai" class="ai-box">Laddar...</div>
-    <div class="card">
-      <h3>Vikt</h3>
-      <input id="weightInput" placeholder="kg">
-      <input type="date" id="dateInput">
-      <button onclick="saveWeight()">Spara</button>
-    </div>
-  </div>
-  <canvas id="chart" height="120"></canvas>
-</div>
-  <div class="card">
-  <h3>Veckoinställningar</h3>
-
-  <label>Cykeldag:</label>
-  <select id="cycleDay">
-    <option>Måndag</option>
-    <option>Tisdag</option>
-    <option>Onsdag</option>
-    <option>Torsdag</option>
-    <option>Fredag</option>
-    <option>Lördag</option>
-    <option>Söndag</option>
-  </select>
-
-  <label>Fastedag:</label>
-  <select id="fastDay">
-    <option>Måndag</option>
-    <option>Tisdag</option>
-    <option>Onsdag</option>
-    <option>Torsdag</option>
-    <option>Fredag</option>
-    <option>Lördag</option>
-    <option>Söndag</option>
-  </select>
-
-  <button onclick="saveSettings()">Spara</button>
-</div>
-<div class="card">
-  <h3>Träning</h3>
-  <button onclick="logWorkout()">Klar</button>
+<div class="tabs">
+  <div onclick="showTab('home')">Hem</div>
+  <div onclick="showTab('training')">Träning</div>
+  <div onclick="showTab('weight')">Vikt</div>
+  <div onclick="showTab('food')">Kost</div>
 </div>
 
-<script src="app.js"></script>
-
-</body>
-</html>
+<div id="app"></div>
