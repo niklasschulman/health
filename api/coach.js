@@ -1,111 +1,113 @@
-export const config = {
-  runtime: "edge",
-};
+export const config = { runtime: "edge" };
 
 export default async function handler(req) {
 
-  // 🔥 CORS headers
-  const corsHeaders = {
+  const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
   };
 
-  // hantera preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, {
-      status: 200,
-      headers: corsHeaders,
-    });
+    return new Response(null, { status: 200, headers });
   }
 
-  try {
+  const body = await req.json();
 
-    const body = await req.json();
+  const { weights, settings } = body;
 
-onst prompt = `
+  // 🔒 Kolla om plan redan finns för veckan
+  const today = new Date();
+  const monday = new Date(today.setDate(today.getDate() - today.getDay() + 1))
+    .toISOString().slice(0,10);
+
+  const planRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/plans?week_start=eq.${monday}`, {
+    headers: {
+      "apikey": process.env.SUPABASE_KEY,
+      "Authorization": `Bearer ${process.env.SUPABASE_KEY}`
+    }
+  });
+
+  const existingPlans = await planRes.json();
+
+  let planText;
+
+  if (existingPlans.length > 0) {
+    planText = existingPlans[0].plan_text;
+  } else {
+
+    const prompt = `
 Du är en personlig hälsocoach.
 
 Person:
 - 51 år
 - tidigare hjärtinfarkt
 - vill minimera träning
-- max 2 korta styrkepass/vecka (20–30 min)
+- max 2 korta styrkepass/vecka
+- cykeldag: ${settings.cycleDay}
+- fastedag: ${settings.fastDay}
 
 Regler:
-- ingen styrketräning på fastedag
-- cykeldag är redan kondition
-- träning ska vara kort och lätt
+- ingen styrka på fastedag
+- cykeldag = kondition
+- låg belastning
 
-Inställningar:
-- Cykeldag: ${body.settings?.cycleDay}
-- Fastedag: ${body.settings?.fastDay}
+Skapa:
 
-Skapa ett VECKOSCHEMA:
+1. VECKOSAMMANFATTNING
+2. DAG FÖR DAG (Måndag–Söndag)
 
-Måndag:
-...
+Fokus:
+- aktivitet
+- återhämtning
+- viktuppföljning
+- enkel kost (inga matsedlar)
 
-Tisdag:
-...
-
-...
-
-Söndag:
-...
-
-Varje dag ska ha:
-- aktivitet (kort)
-- ev. kostråd
-
-Kort, tydligt, realistiskt.
+Kort och konkret.
 `;
-    const response = await fetch("https://api.openai.com/v1/responses", {
+
+    const aiRes = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
-        input: prompt,
-      }),
+        input: prompt
+      })
     });
 
-    const data = await response.json();
+    const aiData = await aiRes.json();
 
-let text = "";
-
-// Försök läsa standardstruktur
-if (data.output && data.output.length > 0) {
-  const content = data.output[0].content;
-
-  if (Array.isArray(content)) {
-    for (const item of content) {
-      if (item.type === "output_text" && item.text) {
-        text += item.text;
+    let text = "";
+    if (aiData.output) {
+      for (let item of aiData.output[0].content) {
+        if (item.type === "output_text") text += item.text;
       }
     }
-  }
-}
 
-// fallback – visa hela svaret om parsing misslyckas
-if (!text) {
-  text = JSON.stringify(data);
-}
-    
-    return new Response(JSON.stringify({ text }), {
-      status: 200,
+    planText = text;
+
+    // 💾 spara plan
+    await fetch(`${process.env.SUPABASE_URL}/rest/v1/plans`, {
+      method: "POST",
       headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
+        "apikey": process.env.SUPABASE_KEY,
+        "Authorization": `Bearer ${process.env.SUPABASE_KEY}`,
+        "Content-Type": "application/json"
       },
-    });
-
-  } catch (err) {
-    return new Response(JSON.stringify({ error: "Server error" }), {
-      status: 500,
-      headers: corsHeaders,
+      body: JSON.stringify({
+        week_start: monday,
+        cycle_day: settings.cycleDay,
+        fast_day: settings.fastDay,
+        plan_text: planText
+      })
     });
   }
+
+  return new Response(JSON.stringify({ plan: planText }), {
+    status: 200,
+    headers: { ...headers, "Content-Type": "application/json" }
+  });
 }
