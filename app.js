@@ -203,3 +203,17 @@ document.getElementById("ai").innerHTML = formatWeek(data.text) || "Inget svar";
 
 getAI();
 renderChart();
+async function loadFromServer() {
+
+  const res = await fetch("https://health-bay-alpha.vercel.app/api/store");
+  const data = await res.json();
+
+  if (data.length > 0) {
+    weights = data;
+    localStorage.setItem("weights", JSON.stringify(weights));
+    renderChart();
+  }
+}
+
+// 👇 HÄR startar appen
+loadFromServer();
