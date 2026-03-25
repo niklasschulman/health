@@ -1,8 +1,118 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Hälsocoach</title>
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont;
+      margin: 0;
+      background: #f2f5f9;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0b3d91, #1976d2);
+      color: white;
+      padding: 20px;
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .tabs {
+      display: flex;
+      background: white;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .tab.active {
+      color: #1976d2;
+      border-bottom: 3px solid #1976d2;
+    }
+
+    .container {
+      padding: 16px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #1976d2;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .ai-box {
+      background: #eef3ff;
+      padding: 14px;
+      border-radius: 12px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  AI Hälsocoach
+</header>
+
+<!-- NAV -->
 <div class="tabs">
-  <div onclick="showTab('home')">Hem</div>
-  <div onclick="showTab('training')">Träning</div>
-  <div onclick="showTab('weight')">Vikt</div>
-  <div onclick="showTab('food')">Kost</div>
+  <div class="tab active" onclick="showTab('home')">Hem</div>
+  <div class="tab" onclick="showTab('training')">Träning</div>
+  <div class="tab" onclick="showTab('weight')">Vikt</div>
+  <div class="tab" onclick="showTab('food')">Kost</div>
 </div>
 
-<div id="app"></div>
+<!-- APP CONTENT -->
+<div id="app" class="container"></div>
+
+<script>
+  // enkel tab-switch visuellt
+  function setActiveTab(el){
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function(){
+      setActiveTab(this);
+    });
+  });
+</script>
+
+<script src="app.js"></script>
+
+</body>
+</html>
