@@ -12,122 +12,153 @@ export default async function handler(req) {
     return new Response(null, { status: 200, headers });
   }
 
-  const body = await req.json();
+  try {
 
-  const { weights, settings } = body;
+    const body = await req.json();
+    const settings = body.settings || {};
 
-  // 🔒 Kolla om plan redan finns för veckan
-  const today = new Date();
-  const monday = new Date(today.setDate(today.getDate() - today.getDay() + 1))
-    .toISOString().slice(0,10);
+    const cycleDay = settings.cycleDay || "Tisdag";
+    const fastDay = settings.fastDay || "Fredag";
 
-  const planRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/plans?week_start=eq.${monday}`, {
-    headers: {
-      "apikey": process.env.SUPABASE_KEY,
-      "Authorization": `Bearer ${process.env.SUPABASE_KEY}`
+    // 📅 räkna ut måndag denna vecka
+    const today = new Date();
+    const day = today.getDay(); // 0 = söndag
+    const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+
+    const monday = new Date(today.setDate(diff))
+      .toISOString()
+      .slice(0, 10);
+
+    // 🔍 hämta befintlig plan
+    const res = await fetch(
+      `${process.env.SUPABASE_URL}/rest/v1/plans?week_start=eq.${monday}`,
+      {
+        headers: {
+          apikey: process.env.SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        },
+      }
+    );
+
+    const existingPlans = await res.json();
+
+    let planText = null;
+
+    // 🧠 kolla om vi kan återanvända plan
+    if (existingPlans.length > 0) {
+
+      const existing = existingPlans[0];
+
+      const sameSettings =
+        existing.cycle_day === cycleDay &&
+        existing.fast_day === fastDay;
+
+      if (sameSettings) {
+        planText = existing.plan_text;
+      }
     }
-  });
 
-  const existingPlans = await planRes.json();
+    // 🔥 skapa ny plan om ingen finns eller settings ändrats
+    if (!planText) {
 
-  let planText;
-
-if (existingPlans.length > 0) {
-
-  const existing = existingPlans[0];
-
-  const sameSettings =
-    existing.cycle_day === settings.cycleDay &&
-    existing.fast_day === settings.fastDay;
-
-  if (sameSettings) {
-    planText = existing.plan_text;
-  } else {
-    // 🔥 inställningar ändrade → skapa ny plan
-    planText = null;
-  }
-}
-   else {
-
-    const prompt = `
+      const prompt = `
 Du är en personlig hälsocoach.
 
 Person:
 - 51 år
 - tidigare hjärtinfarkt
 - vill minimera träning
-- max 2 korta styrkepass/vecka
-- cykeldag: ${settings.cycleDay}
-- fastedag: ${settings.fastDay}
+- max 2 korta styrkepass per vecka (20–30 min)
+
+Inställningar:
+- Cykeldag: ${cycleDay}
+- Fastedag: ${fastDay}
 
 Regler:
-- ingen styrka på fastedag
-- cykeldag = kondition
-- låg belastning
+- ingen styrketräning på fastedag
+- cykeldag räknas som kondition
+- träning ska vara kort och lätt
 
 Skapa:
 
-1. VECKOSAMMANFATTNING
+1. VECKOSAMMANFATTNING (kort)
 2. DAG FÖR DAG (Måndag–Söndag)
 
 Fokus:
 - aktivitet
 - återhämtning
 - viktuppföljning
-- enkel kost (inga matsedlar)
 
-Kort och konkret.
+Ingen detaljerad matsedel.
+Kort och tydligt.
 `;
 
-    const aiRes = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "gpt-4.1-mini",
-        input: prompt
-      })
-    });
+      const aiRes = await fetch("https://api.openai.com/v1/responses", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "gpt-4.1-mini",
+          input: prompt,
+        }),
+      });
 
-    const aiData = await aiRes.json();
+      const aiData = await aiRes.json();
 
-    let text = "";
-    if (aiData.output) {
-      for (let item of aiData.output[0].content) {
-        if (item.type === "output_text") text += item.text;
+      let text = "";
+
+      if (aiData.output && aiData.output.length > 0) {
+        const content = aiData.output[0].content;
+
+        for (const item of content) {
+          if (item.type === "output_text") {
+            text += item.text;
+          }
+        }
       }
+
+      planText = text || "Ingen plan kunde genereras";
+
+      // 🧹 radera gamla planer för veckan
+      await fetch(
+        `${process.env.SUPABASE_URL}/rest/v1/plans?week_start=eq.${monday}`,
+        {
+          method: "DELETE",
+          headers: {
+            apikey: process.env.SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+          },
+        }
+      );
+
+      // 💾 spara ny plan
+      await fetch(`${process.env.SUPABASE_URL}/rest/v1/plans`, {
+        method: "POST",
+        headers: {
+          apikey: process.env.SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          week_start: monday,
+          cycle_day: cycleDay,
+          fast_day: fastDay,
+          plan_text: planText,
+        }),
+      });
     }
 
-    planText = text;
-await fetch(`${process.env.SUPABASE_URL}/rest/v1/plans?week_start=eq.${monday}`, {
-  method: "DELETE",
-  headers: {
-    "apikey": process.env.SUPABASE_ANON_KEY,
-    "Authorization": `Bearer ${process.env.SUPABASE_ANON_KEY}`
-  }
-});
-     
-    // 💾 spara plan
-    await fetch(`${process.env.SUPABASE_URL}/rest/v1/plans`, {
-      method: "POST",
-      headers: {
-        "apikey": process.env.SUPABASE_KEY,
-        "Authorization": `Bearer ${process.env.SUPABASE_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        week_start: monday,
-        cycle_day: settings.cycleDay,
-        fast_day: settings.fastDay,
-        plan_text: planText
-      })
+    return new Response(JSON.stringify({ plan: planText }), {
+      status: 200,
+      headers: { ...headers, "Content-Type": "application/json" },
+    });
+
+  } catch (err) {
+    return new Response(JSON.stringify({ error: "Server error" }), {
+      status: 500,
+      headers,
     });
   }
-
-  return new Response(JSON.stringify({ plan: planText }), {
-    status: 200,
-    headers: { ...headers, "Content-Type": "application/json" }
-  });
 }
