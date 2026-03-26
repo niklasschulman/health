@@ -123,6 +123,12 @@ async function loadWeights(){
       plugins: { legend: { display: false } }
     }
   });
+  const today = new Date();
+
+const recent = data.filter(w => {
+  const d = new Date(w.date);
+  return (today - d) <= 14 * 24 * 60 * 60 * 1000;
+});
   renderTable(data);
 }
 async function saveWeight(){
