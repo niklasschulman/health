@@ -157,17 +157,25 @@ let html = `
     ">
       <th>Datum</th>
       <th>Vikt</th>
+      <th>Δ</th>
     </tr>
 `;
 
-  sorted.forEach(row => {
-    html += `
-      <tr style="border-top:1px solid #eee;">
-        <td style="padding:8px 0;">${row.date}</td>
-        <td>${row.weight}</td>
-      </tr>
-    `;
-  });
+sorted.forEach((row, i) => {
+
+  const prev = sorted[i+1];
+  const diff = prev ? (row.weight - prev.weight).toFixed(1) : "";
+
+  html += `
+    <tr style="border-top:1px solid #eee;">
+      <td style="padding:8px 0;">${row.date}</td>
+      <td>${row.weight}</td>
+      <td style="color:${diff > 0 ? 'red' : 'green'};">
+        ${diff ? diff : ""}
+      </td>
+    </tr>
+  `;
+});
 
   html += `</table>`;
 
