@@ -103,8 +103,8 @@ async function loadWeights(){
   const res = await fetch("https://health-bay-alpha.vercel.app/api/weights");
   const data = await res.json();
 
-  const labels = data.map(w => w.date);
-  const values = data.map(w => w.weight);
+const labels = recent.map(w => w.date);
+const values = recent.map(w => w.weight);
 
   const ctx = document.getElementById("chart");
 
