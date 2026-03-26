@@ -179,26 +179,27 @@ async function loadWeights(){
 
   if(chart) chart.destroy();
 
-  chart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: labels,
-datasets: [
-  {
-    data: values,
-    tension: 0.3
+chart = new Chart(ctx, {
+  type: "line",
+  data: {
+    labels: labels,
+    datasets: [
+      {
+        data: values,
+        tension: 0.3
+      },
+      {
+        data: trend,
+        borderDash: [5,5],
+        pointRadius: 0
+      }
+    ]
   },
-  {
-    data: trend,
-    borderDash: [5,5],
-    pointRadius: 0
-  }
-]
-    },
-    options: {
-      plugins: { legend: { display: false } }
-    }
-  });
+  options: {
+    plugins: { legend: { display: false } }
+  },
+  plugins: [targetPlugin]
+});
 
   // 🔥 4. tabellen använder ALL data
   renderTable(data);
