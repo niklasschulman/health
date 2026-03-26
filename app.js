@@ -102,7 +102,10 @@ async function loadWeights(){
 
   const res = await fetch("https://health-bay-alpha.vercel.app/api/weights");
   const data = await res.json();
-
+const recent = data.filter(w => {
+  const d = new Date(w.date);
+  return (today - d) <= 14 * 24 * 60 * 60 * 1000;
+});
 const labels = recent.map(w => w.date);
 const values = recent.map(w => w.weight);
 
@@ -125,10 +128,7 @@ const values = recent.map(w => w.weight);
   });
   const today = new Date();
 
-const recent = data.filter(w => {
-  const d = new Date(w.date);
-  return (today - d) <= 14 * 24 * 60 * 60 * 1000;
-});
+
   renderTable(data);
 }
 async function saveWeight(){
