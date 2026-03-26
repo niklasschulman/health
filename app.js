@@ -65,11 +65,22 @@ async function render(){
   }
 }
 
-function saveSettings(){
+async function saveSettings(){
+
   settings.cycleDay = document.getElementById("cycleDay").value;
   settings.fastDay = document.getElementById("fastDay").value;
-  localStorage.setItem("settings", JSON.stringify(settings));
-  alert("Sparat");
-}
 
+  localStorage.setItem("settings", JSON.stringify(settings));
+
+  alert("Sparat – ny plan skapas");
+
+  // 🔥 hämta ny plan direkt
+  const plan = await getPlan();
+  document.getElementById("app").innerHTML = `
+    <div class="card">
+      <h3>Veckoplan</h3>
+      <div class="ai-box">${plan}</div>
+    </div>
+  `;
+}
 render();
