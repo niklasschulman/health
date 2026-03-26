@@ -17,11 +17,6 @@ export default async function handler(req) {
     // 🔍 GET – hämta senaste 14 dagar
     if (req.method === "GET") {
 
-      const today = new Date();
-      const twoWeeksAgo = new Date();
-      twoWeeksAgo.setDate(today.getDate() - 14);
-
-      const from = twoWeeksAgo.toISOString().slice(0,10);
 const res = await fetch(
   `${process.env.SUPABASE_URL}/rest/v1/weights?order=date.asc`,
   {
