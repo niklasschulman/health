@@ -1,3 +1,27 @@
+const targetPlugin = {
+  id: 'targetBand',
+  beforeDraw: (chart) => {
+    const { ctx, chartArea, scales } = chart;
+
+    if (!chartArea) return;
+
+    const yTop = scales.y.getPixelForValue(65.5);
+    const yBottom = scales.y.getPixelForValue(64.5);
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(76, 175, 80, 0.1)'; // ljusgrön
+
+    ctx.fillRect(
+      chartArea.left,
+      yTop,
+      chartArea.right - chartArea.left,
+      yBottom - yTop
+    );
+
+    ctx.restore();
+  }
+};
+
 let tab = "home";
 let settings = JSON.parse(localStorage.getItem("settings")) || {};
 
@@ -19,6 +43,27 @@ async function getPlan(){
   const data = await res.json();
   return data.plan;
 }
+
+function calculateTrend(data){
+
+  const n = data.length;
+  if(n < 2) return data.map(() => null);
+
+  let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+
+  data.forEach((w, i) => {
+    sumX += i;
+    sumY += w.weight;
+    sumXY += i * w.weight;
+    sumXX += i * i;
+  });
+
+  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+  const intercept = (sumY - slope * sumX) / n;
+
+  return data.map((_, i) => intercept + slope * i);
+}
+
 
 async function render(){
 
@@ -121,6 +166,8 @@ async function loadWeights(){
     return (today - d) <= 14 * 24 * 60 * 60 * 1000;
   });
 
+  const trend = calculateTrend(recent);
+
   // 🔥 2. sortera (valfritt men bra)
   recent.sort((a,b) => new Date(a.date) - new Date(b.date));
 
@@ -136,10 +183,17 @@ async function loadWeights(){
     type: "line",
     data: {
       labels: labels,
-      datasets: [{
-        data: values,
-        tension: 0.3
-      }]
+datasets: [
+  {
+    data: values,
+    tension: 0.3
+  },
+  {
+    data: trend,
+    borderDash: [5,5],
+    pointRadius: 0
+  }
+]
     },
     options: {
       plugins: { legend: { display: false } }
