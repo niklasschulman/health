@@ -192,6 +192,13 @@ sorted.forEach((row, i) => {
 
   document.getElementById("weightTable").innerHTML = html;
 }
+async function loadFoodTip(){
+
+  const res = await fetch("https://health-bay-alpha.vercel.app/api/food");
+  const data = await res.json();
+
+  document.getElementById("foodTip").innerText = data.tip;
+}
 
 async function saveSettings(){
 
