@@ -69,6 +69,7 @@ async function render(){
       <h3>Vikt</h3>
 
       <canvas id="chart" height="120"></canvas>
+      <div id="weightTable"></div>
     </div>
 
     <div class="card">
