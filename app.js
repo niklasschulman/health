@@ -73,12 +73,23 @@ async function render(){
     </div>
 
     <div class="card">
-      <h3>Lägg till vikt</h3>
-
-      <input id="weightInput" placeholder="kg" style="flex:1; min-width:0;">
-      <input type="date" id="dateInput" style="flex:1; min-width:0;">
-
+<div style="display:flex; gap:10px; width:100%;">
+  
+  <input 
+    id="weightInput" 
+    placeholder="kg" 
+    style="flex:1; min-width:0; width:0;"
+  >
+  
+  <input 
+    type="date" 
+    id="dateInput" 
+    style="flex:1; min-width:0; width:0;"
+  >
       <button onclick="saveWeight()">Spara</button>
+  
+</div>
+
     </div>
   `;
 
