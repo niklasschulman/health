@@ -32,9 +32,22 @@ export default async function handler(req) {
 
   let planText;
 
-  if (existingPlans.length > 0) {
-    planText = existingPlans[0].plan_text;
+if (existingPlans.length > 0) {
+
+  const existing = existingPlans[0];
+
+  const sameSettings =
+    existing.cycle_day === settings.cycleDay &&
+    existing.fast_day === settings.fastDay;
+
+  if (sameSettings) {
+    planText = existing.plan_text;
   } else {
+    // 🔥 inställningar ändrade → skapa ny plan
+    planText = null;
+  }
+}
+   else {
 
     const prompt = `
 Du är en personlig hälsocoach.
@@ -88,7 +101,14 @@ Kort och konkret.
     }
 
     planText = text;
-
+await fetch(`${process.env.SUPABASE_URL}/rest/v1/plans?week_start=eq.${monday}`, {
+  method: "DELETE",
+  headers: {
+    "apikey": process.env.SUPABASE_ANON_KEY,
+    "Authorization": `Bearer ${process.env.SUPABASE_ANON_KEY}`
+  }
+});
+     
     // 💾 spara plan
     await fetch(`${process.env.SUPABASE_URL}/rest/v1/plans`, {
       method: "POST",
