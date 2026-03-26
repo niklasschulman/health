@@ -102,12 +102,23 @@ async function loadWeights(){
 
   const res = await fetch("https://health-bay-alpha.vercel.app/api/weights");
   const data = await res.json();
-const recent = data.filter(w => {
-  const d = new Date(w.date);
-  return (today - d) <= 14 * 24 * 60 * 60 * 1000;
-});
-const labels = recent.map(w => w.date);
-const values = recent.map(w => w.weight);
+
+  console.log("ALL DATA:", data);
+
+  // 🔥 1. filtrera först
+  const today = new Date();
+
+  const recent = data.filter(w => {
+    const d = new Date(w.date);
+    return (today - d) <= 14 * 24 * 60 * 60 * 1000;
+  });
+
+  // 🔥 2. sortera (valfritt men bra)
+  recent.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+  // 🔥 3. använd recent
+  const labels = recent.map(w => w.date);
+  const values = recent.map(w => w.weight);
 
   const ctx = document.getElementById("chart");
 
@@ -126,11 +137,11 @@ const values = recent.map(w => w.weight);
       plugins: { legend: { display: false } }
     }
   });
-  const today = new Date();
 
-
+  // 🔥 4. tabellen använder ALL data
   renderTable(data);
 }
+
 async function saveWeight(){
 
   const weight = parseFloat(document.getElementById("weightInput").value);
