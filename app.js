@@ -84,6 +84,17 @@ async function render(){
 
   loadWeights();
 }
+  if(tab === "food"){
+  app.innerHTML = `
+    <div class="card">
+      <h3>Dagens kostråd</h3>
+      <div id="foodTip" class="ai-box">Laddar...</div>
+    </div>
+  `;
+
+  loadFoodTip();
+}
+  
 }
 let chart;
 
