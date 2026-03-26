@@ -135,7 +135,34 @@ async function saveWeight(){
 
   loadWeights();
 }
+function renderTable(data){
 
+  // sortera: senaste först
+  const sorted = [...data].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
+
+  let html = `
+    <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+      <tr style="text-align:left; opacity:0.6;">
+        <th>Datum</th>
+        <th>Vikt</th>
+      </tr>
+  `;
+
+  sorted.forEach(row => {
+    html += `
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:8px 0;">${row.date}</td>
+        <td>${row.weight}</td>
+      </tr>
+    `;
+  });
+
+  html += `</table>`;
+
+  document.getElementById("weightTable").innerHTML = html;
+}
 
 async function saveSettings(){
 
