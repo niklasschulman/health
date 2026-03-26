@@ -112,6 +112,7 @@ async function loadWeights(){
       plugins: { legend: { display: false } }
     }
   });
+  renderTable(data);
 }
 async function saveWeight(){
 
@@ -142,13 +143,22 @@ function renderTable(data){
     (a, b) => new Date(b.date) - new Date(a.date)
   );
 
-  let html = `
-    <table style="width:100%; border-collapse:collapse; margin-top:10px;">
-      <tr style="text-align:left; opacity:0.6;">
-        <th>Datum</th>
-        <th>Vikt</th>
-      </tr>
-  `;
+let html = `
+  <table style="
+    width:100%;
+    border-collapse:collapse;
+    margin-top:12px;
+    font-size:14px;
+  ">
+    <tr style="
+      text-align:left;
+      color:#666;
+      font-size:12px;
+    ">
+      <th>Datum</th>
+      <th>Vikt</th>
+    </tr>
+`;
 
   sorted.forEach(row => {
     html += `
