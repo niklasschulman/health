@@ -22,16 +22,15 @@ export default async function handler(req) {
       twoWeeksAgo.setDate(today.getDate() - 14);
 
       const from = twoWeeksAgo.toISOString().slice(0,10);
-
-      const res = await fetch(
-        `${process.env.SUPABASE_URL}/rest/v1/weights?date=gte.${from}&order=date.asc`,
-        {
-          headers: {
-            apikey: process.env.SUPABASE_ANON_KEY,
-            Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY}`,
-          },
-        }
-      );
+const res = await fetch(
+  `${process.env.SUPABASE_URL}/rest/v1/weights?order=date.asc`,
+  {
+    headers: {
+      apikey: process.env.SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+    },
+  }
+);
 
       const data = await res.json();
 
