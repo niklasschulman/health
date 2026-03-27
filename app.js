@@ -46,7 +46,27 @@ function showTab(t){
   tab = t;
   render();
 }
+function getTodayPlan(planText){
 
+  const today = getTodayName();
+
+  const lines = planText.split("\n");
+
+  let found = false;
+  let result = [];
+
+  for(let line of lines){
+
+    if(line.includes(today)){
+      found = true;
+      continue;
+    }
+
+    if(found){
+      if(line.includes(":")) break;
+      if(line.trim()) result.push(line);
+    }
+  }
 async function getPlan(){
 
   const res = await fetch("https://health-bay-alpha.vercel.app/api/coach", {
