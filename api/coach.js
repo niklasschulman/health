@@ -60,7 +60,34 @@ export default async function handler(req) {
 
     // 🔥 skapa ny plan om ingen finns eller settings ändrats
     if (!planText) {
+const weightRes = await fetch(
+  `${process.env.SUPABASE_URL}/rest/v1/weights?order=date.asc`,
+  {
+    headers: {
+      apikey: process.env.SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+    },
+  }
+);
 
+const weights = await weightRes.json();
+      let trendText = "ingen data";
+
+if(weights.length >= 2){
+
+const recent = weights.slice(-5);
+const first = recent[0].weight;
+const last = recent[recent.length - 1].weight;
+const diff = (last - first).toFixed(1);
+  
+  if(diff > 0.3){
+    trendText = `ökning ca ${diff} kg senaste veckan`;
+  } else if(diff < -0.3){
+    trendText = `minskning ca ${diff} kg senaste veckan`;
+  } else {
+    trendText = "stabil vikt";
+  }
+}
       const prompt = `
 Du är en personlig hälsocoach.
 
@@ -74,6 +101,9 @@ Inställningar:
 - Cykeldag: ${cycleDay}
 - Fastedag: ${fastDay}
 
+Vikttrend:
+${trendText}
+
 Regler:
 - ingen styrketräning på fastedag
 - cykeldag räknas som kondition
@@ -85,6 +115,12 @@ Träningsregler:
 - ingen styrka på fastedag
 - cykeldag = kondition
 - träning ska vara kort och lätt
+
+Regler för vikt:
+- målet är stabil vikt (ca 64.5–65.5 kg)
+- vid viktminskning: minska belastning/fasta något
+- vid viktökning: öka aktivitet lätt
+- gör små justeringar, inte drastiska
 
 Skapa:
 
