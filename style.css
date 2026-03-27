@@ -10,7 +10,9 @@ header {
   padding: 16px;
   font-size: 20px;
 }
-
+input {
+  box-sizing: border-box;
+}
 .container {
   padding: 16px;
 }
