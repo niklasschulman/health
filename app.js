@@ -106,17 +106,28 @@ async function render(){
 
   const app = document.getElementById("app");
 
-  if(tab === "home"){
-    app.innerHTML = `
-      <div class="card">
-        <h3>Veckoplan</h3>
-        <div id="plan">Laddar...</div>
-      </div>
-    `;
+if(tab === "home"){
 
-    const plan = await getPlan();
-    document.getElementById("plan").innerText = plan;
-  }
+  app.innerHTML = `
+    <div class="card">
+      <h3>Idag</h3>
+      <div id="today" class="ai-box">Laddar...</div>
+    </div>
+
+    <div class="card">
+      <h3>Veckoplan</h3>
+      <div id="plan">Laddar...</div>
+    </div>
+  `;
+
+  const plan = await getPlan();
+
+  document.getElementById("plan").innerText = plan;
+
+  const todayText = getTodayPlan(plan);
+
+  document.getElementById("today").innerText = todayText || "Vila";
+}
 
   if(tab === "training"){
     app.innerHTML = `
