@@ -1,3 +1,17 @@
+const workouts = {
+  A: [
+    "Knäböj – 10 reps",
+    "Armhävningar – 8 reps",
+    "Hantelrodd – 10/arm",
+    "Plankan – 30 sek"
+  ],
+  B: [
+    "Utfall – 8/ben",
+    "Axelpress – 10 reps",
+    "Glute bridge – 12 reps",
+    "Dead bug – 10/side"
+  ]
+};
 const targetPlugin = {
   id: 'targetBand',
   beforeDraw: (chart) => {
@@ -84,7 +98,7 @@ async function render(){
   if(tab === "training"){
     app.innerHTML = `
       <div class="card">
-        <h3>Inställningar</h3>
+        <h3>Inställningar</h3>1
 
         <label>Cykeldag</label>
         <select id="cycleDay">
@@ -103,7 +117,20 @@ async function render(){
           <option>Torsdag</option>
           <option>Fredag</option>
         </select>
+        <h3>Träningspass</h3>1
+   <div class="card">
+      <h3>Pass A (20 min)</h3>
+      <ul>
+        ${workouts.A.map(x => `<li>${x}</li>`).join("")}
+      </ul>
+    </div>
 
+    <div class="card">
+      <h3>Pass B (20 min)</h3>
+      <ul>
+        ${workouts.B.map(x => `<li>${x}</li>`).join("")}
+      </ul>
+    </div>
         <button onclick="saveSettings()">Spara</button>
       </div>
     `;
