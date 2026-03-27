@@ -1,3 +1,6 @@
+function getTodayName(){
+  return ["Söndag","Måndag","Tisdag","Onsdag","Torsdag","Fredag","Lördag"][new Date().getDay()];
+}
 const workouts = {
   A: [
     "Knäböj – 10 reps",
