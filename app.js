@@ -116,21 +116,31 @@ async function render(){
       <canvas id="chart" height="120"></canvas>
       <div id="weightTable"></div>
     </div>
+<div style="
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+">
 
-    
-<div style="display:flex; gap:10px; width:100%;">
-  
   <input 
-    id="weightInput" 
-    placeholder="kg" 
-    style="flex:1; min-width:0; width:0;">
-  
+    id="weightInput"
+    placeholder="kg"
+    style="flex:1 1 120px;"
+  >
+
   <input 
-    type="date" 
-    id="dateInput" 
-    style="flex:1; min-width:0; width:0;">
-      <button onclick="saveWeight()">Spara</button>
-  
+    type="date"
+    id="dateInput"
+    style="flex:1 1 160px;"
+  >
+
+  <button 
+    onclick="saveWeight()"
+    style="flex:1 1 100%;"
+  >
+    Spara vikt
+  </button>
+
 </div>
 
   `;
