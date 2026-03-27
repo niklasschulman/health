@@ -77,6 +77,13 @@ Inställningar:
 Regler:
 - ingen styrketräning på fastedag
 - cykeldag räknas som kondition
+
+Träningsregler:
+- max 2 styrkepass per vecka
+- använd endast "Pass A" eller "Pass B"
+- inga egna övningar
+- ingen styrka på fastedag
+- cykeldag = kondition
 - träning ska vara kort och lätt
 
 Skapa:
@@ -91,6 +98,13 @@ Fokus:
 
 Ingen detaljerad matsedel.
 Kort och tydligt.
+
+Exempel på träningstips:
+Onsdag:
+Pass A (20 min)
+
+Fredag:
+Pass B (20 min)
 `;
 
       const aiRes = await fetch("https://api.openai.com/v1/responses", {
